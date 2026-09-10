@@ -18,6 +18,8 @@ The deployed provider path is real, not a mock. Local automated tests do not cal
 
 ## Local setup
 
+OpenAI rubric and report generation use `gpt-5.6-terra`. Rubrics use low reasoning effort for responsiveness; reports use medium effort for transcript evaluation. This setting does not change Sarvam's live voice model or turn latency.
+
 Requirements: Node.js 24+, npm, Docker, an OpenAI API key for rubric/report generation, and a Sarvam API key plus committed Voice Agent.
 
 1. Copy `.env.example` to `.env` and replace every placeholder. `APP_BASE_URL` may be `http://localhost:3000` for non-microphone development; browser microphone QA requires HTTPS or localhost.

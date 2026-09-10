@@ -8,7 +8,8 @@ export async function generateRubric(input: {
   supportingDetails?: string;
 }): Promise<Rubric> {
   const response = await openai().responses.parse({
-    model: process.env.OPENAI_TEXT_MODEL ?? "gpt-5-mini",
+    model: process.env.OPENAI_TEXT_MODEL ?? "gpt-5.6-terra",
+    reasoning: { effort: "low" },
     input: [
       {
         role: "system",

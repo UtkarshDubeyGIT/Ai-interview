@@ -5,7 +5,7 @@ const serverEnvSchema = z.object({
   AUTH_SECRET: z.string().min(32),
   APP_BASE_URL: z.string().url(),
   OPENAI_API_KEY: z.string().min(20),
-  OPENAI_TEXT_MODEL: z.string().min(1).default("gpt-5-mini"),
+  OPENAI_TEXT_MODEL: z.string().min(1).default("gpt-5.6-terra"),
   VOICE_PROVIDER: z.literal("sarvam"),
   SARVAM_API_KEY: z.string().min(20),
   SARVAM_ORG_ID: z.string().uuid(),
