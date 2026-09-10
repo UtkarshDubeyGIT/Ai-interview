@@ -302,7 +302,7 @@ tr:last-child td {
   font: 600 1.75rem var(--theme-font-heading);
   box-shadow: 0 0 0 8px rgb(124 112 250 / 12%);
 }
-.wave {
+.legacy-wave {
   height: 4rem;
   display: flex;
   align-items: center;
@@ -351,5 +351,301 @@ tr:last-child td {
   .page-head {
     align-items: stretch;
     flex-direction: column;
+  }
+}
+
+/* ElevenLabs UI source adaptations: voice room and conversation primitives. */
+.interview-topline {
+  max-width: 73rem;
+  margin: 0 auto 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.private-label,
+.room-footer,
+.room-guidance,
+.interviewer-label {
+  color: #aeb4c2;
+}
+.private-label {
+  font-size: 0.8rem;
+}
+.interview-layout {
+  max-width: 58rem;
+  margin: auto;
+  display: grid;
+  gap: 1rem;
+}
+.interview-layout.with-transcript {
+  max-width: 73rem;
+  grid-template-columns: minmax(0, 1fr) 23rem;
+}
+.interview-stage {
+  min-width: 0;
+  border: 1px solid var(--theme-border-inverse);
+  border-radius: var(--theme-radius-lg);
+  background: rgb(19 25 33 / 94%);
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.room-role {
+  margin: 0.35rem 0;
+  font-size: 0.9rem;
+}
+.room-timer {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.4rem;
+}
+.room-timer small {
+  color: #aeb4c2;
+  font-size: 0.7rem;
+}
+.interviewer-center {
+  text-align: center;
+  padding: 2.5rem 0 1rem;
+}
+.mira-medallion {
+  display: grid;
+  place-items: center;
+  margin: 0 auto 1.75rem;
+  width: 7rem;
+  height: 7rem;
+  border: 1px solid #39314d;
+  border-radius: 50%;
+}
+.interviewer-label {
+  font-size: 0.8rem;
+}
+.interviewer-center h1 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.04em;
+  margin: 1rem 0 0.7rem;
+}
+.room-guidance {
+  max-width: 32rem;
+  margin: auto;
+  min-height: 3rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.audio-waveform {
+  max-width: 25rem;
+  margin: 0.5rem auto;
+  color: var(--theme-violet-400);
+}
+.connection-badge {
+  font-size: 0.75rem;
+  color: #b4ddcb;
+}
+.connection-dot {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #82cfae;
+  margin-right: 0.4rem;
+}
+.interview-preflight,
+.room-completion {
+  max-width: 36rem;
+  text-align: center;
+  margin: 0 auto 1.5rem;
+  color: #aeb4c2;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.interview-facts {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.3rem;
+  color: #e5e5ef;
+}
+.consent-copy {
+  font-size: 0.75rem;
+}
+.room-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.room-control {
+  border: 1px solid #454754;
+  border-radius: 0.65rem;
+  background: #242934;
+  color: #f3f1fa;
+  min-height: 2.8rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.room-control:hover {
+  background: #343344;
+}
+.room-control[aria-pressed="true"] {
+  border-color: var(--theme-violet-400);
+  background: #35274e;
+}
+.room-control.end-call {
+  color: #ffb7b7;
+}
+.room-footer {
+  text-align: center;
+  font-size: 0.7rem;
+  margin-top: 2rem;
+}
+.transcript-panel {
+  height: 42rem;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dedee7;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+  color: #20232d;
+}
+.transcript-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dedee7;
+}
+.transcript-header h2 {
+  font-size: 1.05rem;
+  margin: 0.4rem 0 0;
+}
+.transcript-count,
+.transcript-footer {
+  font-size: 0.7rem;
+  opacity: 0.65;
+}
+.transcript-footer {
+  padding: 0.8rem 1.5rem;
+  border-top: 1px solid #dedee7;
+}
+.conversation {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.conversation-viewport {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.conversation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  padding: 1.5rem;
+}
+.conversation-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+.conversation-scroll {
+  position: absolute;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border: 1px solid #c9b8fa;
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+  background: #eee8ff;
+  color: #3f2378;
+  cursor: pointer;
+}
+.message {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+.message-avatar {
+  width: 1.7rem;
+  height: 1.7rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #ece5fc;
+  color: #623ac0;
+  font-size: 0.7rem;
+}
+.message-body {
+  min-width: 0;
+  flex: 1;
+}
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  margin: 0.2rem 0 0.5rem;
+}
+.message-meta span {
+  opacity: 0.6;
+}
+.message-content {
+  padding: 0.8rem 1rem;
+  border-radius: 0 0.8rem 0.8rem 0.8rem;
+  background: #f2f0f6;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.is-user .message-content {
+  background: #eee8ff;
+}
+.interview-page .transcript-panel {
+  background: #131921;
+  color: #edecf4;
+  border-color: #343842;
+}
+.interview-page .transcript-header,
+.interview-page .transcript-footer {
+  border-color: #343842;
+}
+.interview-page .message-content {
+  background: #252a34;
+}
+.interview-page .is-user .message-content {
+  background: #302440;
+}
+@media (max-width: 800px) {
+  .interview-layout.with-transcript {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .interview-topline {
+    margin-bottom: 1rem;
+  }
+  .private-label {
+    display: none;
+  }
+  .interviewer-center {
+    padding-top: 1.5rem;
+  }
+  .transcript-panel {
+    height: 28rem;
   }
 }

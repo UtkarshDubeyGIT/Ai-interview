@@ -6,6 +6,8 @@ import type {
   ServerTranscriptMsg,
 } from "sarvam-conv-ai-sdk/browser";
 import { useEffect, useRef, useState } from "react";
+import { AudioWaveform, type AudioMeter } from "./audio-waveform";
+import { InterviewTranscript, type DisplayTurn } from "./interview-transcript";
 
 type UiState =
   | "Ready"
@@ -30,12 +32,14 @@ export function InterviewRoom({
   roleTitle,
   initialStatus,
   initialElapsed,
+  initialTurns = [],
 }: {
   token: string;
   candidateName: string;
   roleTitle: string;
   initialStatus: string;
   initialElapsed: number;
+  initialTurns?: DisplayTurn[];
 }) {
   const [consented, setConsented] = useState(initialStatus !== "not_started");
   const [captions, setCaptions] = useState(false);
@@ -43,7 +47,14 @@ export function InterviewRoom({
   const [state, setState] = useState<UiState>("Ready");
   const [error, setError] = useState("");
   const [seconds, setSeconds] = useState(initialElapsed);
-  const [caption, setCaption] = useState("");
+  const [turns, setTurns] = useState<DisplayTurn[]>(initialTurns);
+  const levels = useRef<AudioMeter>({
+    input: 0,
+    output: 0,
+    inputAt: 0,
+    outputAt: 0,
+  });
+  const starting = useRef(false);
   const agent = useRef<ConversationAgent | null>(null);
   const secondsRef = useRef(initialElapsed);
   const finishing = useRef(false);
@@ -141,7 +152,9 @@ export function InterviewRoom({
   }
 
   async function begin() {
-    if (agent.current) return;
+    if (agent.current || starting.current || finishing.current) return;
+    starting.current = true;
+    setMuted(false);
     completeOnProviderEnd.current = false;
     setError("");
     setState("Connecting");
@@ -180,6 +193,11 @@ export function InterviewRoom({
           interaction_type: InteractionType.CALL,
         },
         audioInterface: new BrowserAudioInterface(16000),
+        audioLevelCallback: ({ direction, rms }) => {
+          levels.current[direction] = rms;
+          levels.current[direction === "input" ? "inputAt" : "outputAt"] =
+            performance.now();
+        },
         stateCallback: (nextState) => {
           if (nextState === AgentState.CONNECTING) setState("Connecting");
           if (nextState === AgentState.LISTENING) setState("Listening");
@@ -201,7 +219,6 @@ export function InterviewRoom({
           const text = message.content.trim();
           if (!text) return;
           const role = message.role === "user" ? "candidate" : "interviewer";
-          setCaption(text);
           if (role === "candidate") setState("Thinking");
           const eventId = [
             "sarvam",
@@ -210,6 +227,7 @@ export function InterviewRoom({
             message.role,
             ++transcriptSequence.current,
           ].join(":");
+          setTurns((previous) => [...previous, { id: eventId, role, text }]);
           await persist(role, text, eventId);
         },
       });
@@ -234,6 +252,8 @@ export function InterviewRoom({
             : "Could not start the interview.",
       );
       setState("Retrying");
+    } finally {
+      starting.current = false;
     }
   }
 
@@ -244,128 +264,196 @@ export function InterviewRoom({
     setMuted(!muted);
   }
 
-  if (state === "Complete")
-    return (
-      <main className="interview-page">
-        <div className="interview-shell">
-          <section className="interview-card" style={{ textAlign: "center" }}>
-            <div className="portrait" style={{ margin: "0 auto 1.5rem" }}>
-              ✓
-            </div>
-            <h1 className="heading">Interview complete</h1>
-            <p style={{ color: "var(--theme-neutral-300)" }}>
-              Thank you. Your responses were submitted successfully.
-            </p>
-          </section>
-        </div>
-      </main>
-    );
+  const connected = [
+    "Listening",
+    "Transcribing",
+    "Thinking",
+    "Speaking",
+  ].includes(state);
+  const busy = state === "Connecting";
+  const remaining = Math.max(0, 900 - seconds);
+  const guidance: Record<UiState, string> = {
+    Ready:
+      initialElapsed > 0
+        ? "Pick up where you left off."
+        : "A little preparation. A better conversation.",
+    Connecting: "Getting your interview ready…",
+    Listening: muted
+      ? "Your microphone is muted."
+      : "Take your time. Mira is listening.",
+    Transcribing: "Finishing your response…",
+    Thinking: "Mira is considering your answer.",
+    Speaking: "You can interrupt to ask a question.",
+    Retrying: "Let’s get you connected again.",
+    Complete: "Thank you for your time.",
+  };
 
   return (
     <main className="interview-page">
-      <div className="interview-shell">
-        <section className="interview-card">
-          {!consented ? (
-            <>
-              <p className="eyebrow">Private interview · {roleTitle}</p>
-              <h1 className="heading">Hi {candidateName}, meet Mira.</h1>
-              <p
-                style={{ color: "var(--theme-neutral-300)", maxWidth: "42rem" }}
-              >
-                This is a 15-minute AI voice interview. Your microphone audio is
-                processed live but not recorded. A transcript and evidence-based
-                evaluation will be shared with the company.
-              </p>
-              <div className="notice" style={{ margin: "1.5rem 0" }}>
-                By continuing, you consent to microphone processing and
-                transcript storage for this interview.
-              </div>
-              <button className="button button-primary" onClick={begin}>
-                I consent — test microphone
-              </button>
-            </>
+      <div className="interview-topline">
+        <span className="brand">
+          <span className="brand-mark">V</span> Violet Interview
+        </span>
+        <span className="private-label">Private interview</span>
+      </div>
+      <div
+        className={`interview-layout ${captions && consented && state !== "Complete" ? "with-transcript" : ""}`}
+      >
+        <section className="interview-stage" aria-label="Voice interview">
+          <header className="room-header">
+            <div>
+              <p className="eyebrow">Your interview</p>
+              <p className="room-role">{roleTitle}</p>
+            </div>
+            <div
+              className="room-timer"
+              role="timer"
+              aria-label={`${Math.floor(remaining / 60)} minutes ${remaining % 60} seconds remaining`}
+            >
+              <span>
+                {String(Math.floor(remaining / 60)).padStart(2, "0")}
+                <span className="timer-colon">:</span>
+                {String(remaining % 60).padStart(2, "0")}
+              </span>
+              <small>remaining</small>
+            </div>
+          </header>
+          <div className="interviewer-center">
+            <div className="mira-medallion" data-state={state}>
+              <div className="portrait">{state === "Complete" ? "✓" : "M"}</div>
+            </div>
+            <span className="interviewer-label">Mira · AI interviewer</span>
+            <h1 className="heading">
+              {state === "Complete"
+                ? "You’re all done."
+                : !consented
+                  ? `Hi ${candidateName.split(" ")[0]}, meet Mira.`
+                  : state === "Ready"
+                    ? "Ready when you are."
+                    : state === "Speaking"
+                      ? "Mira is speaking"
+                      : state === "Thinking"
+                        ? "A moment to think"
+                        : state === "Listening"
+                          ? "The floor is yours"
+                          : state === "Transcribing"
+                            ? "Got it, one moment"
+                            : state === "Retrying"
+                              ? "Let’s reconnect"
+                              : "Connecting with Mira"}
+            </h1>
+            <p className="room-guidance" role="status">
+              {guidance[state]}
+            </p>
+            <AudioWaveform
+              levels={levels}
+              active={connected}
+              muted={muted}
+              speaking={state === "Speaking"}
+            />
+            {connected && (
+              <span className="connection-badge">
+                <span />
+                Connected · {muted ? "Microphone muted" : "Microphone on"}
+              </span>
+            )}
+          </div>
+          {state === "Complete" ? (
+            <div className="room-completion">
+              <p>Your responses have been submitted to the company.</p>
+              <p>You can safely close this window.</p>
+            </div>
           ) : (
             <>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "1rem",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "1rem" }}
-                >
-                  <div className="portrait">M</div>
-                  <div>
-                    <strong>Mira</strong>
-                    <div style={{ color: "var(--theme-neutral-300)" }}>
-                      {state}
-                    </div>
+              {!consented && (
+                <div className="interview-preflight">
+                  <div className="interview-facts">
+                    <span>15 minutes</span>
+                    <span>English or Hinglish</span>
+                    <span>Voice conversation</span>
                   </div>
+                  <p>
+                    Mira will ask about your experience and how you approach
+                    your work. Find a quiet spot and speak naturally.
+                  </p>
+                  <p className="consent-copy">
+                    By starting, you consent to live microphone processing and
+                    transcript storage. Your transcript and evaluation are
+                    shared with the company.
+                  </p>
                 </div>
-                <strong>
-                  {String(Math.floor((900 - seconds) / 60)).padStart(2, "0")}:
-                  {String((900 - seconds) % 60).padStart(2, "0")}
-                </strong>
-              </div>
-              <div className="wave" aria-hidden="true">
-                {Array.from({ length: 15 }, (_, index) => (
-                  <span key={index} />
-                ))}
-              </div>
-              {captions && (
-                <p
-                  aria-live="polite"
-                  style={{ textAlign: "center", minHeight: "3rem" }}
-                >
-                  {caption || "Captions will appear here."}
-                </p>
               )}
               {error && (
-                <p className="error" role="alert">
+                <p className="error room-error" role="alert">
                   {error}
                 </p>
               )}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: ".75rem",
-                  flexWrap: "wrap",
-                }}
-              >
-                {(state === "Retrying" || state === "Ready") && (
-                  <button className="button button-primary" onClick={begin}>
-                    {state === "Retrying"
-                      ? "Retry connection"
-                      : "Start interview"}
+              <div className="room-controls">
+                {!consented ? (
+                  <button
+                    className="button button-primary room-start"
+                    onClick={begin}
+                    disabled={busy}
+                  >
+                    I consent — start interview{" "}
+                    <span aria-hidden="true">↗</span>
                   </button>
+                ) : (
+                  <>
+                    {(state === "Retrying" || state === "Ready") && (
+                      <button className="button button-primary" onClick={begin}>
+                        {state === "Retrying"
+                          ? "Retry connection"
+                          : initialElapsed
+                            ? "Resume interview"
+                            : "Start interview"}
+                      </button>
+                    )}
+                    <button
+                      className="button room-control"
+                      onClick={toggleMute}
+                      disabled={!connected}
+                      aria-pressed={muted}
+                    >
+                      <span aria-hidden="true">{muted ? "◌" : "●"}</span>
+                      {muted ? "Unmute" : "Microphone"}
+                    </button>
+                    <button
+                      className="button room-control"
+                      onClick={() => setCaptions((value) => !value)}
+                      aria-pressed={captions}
+                      aria-controls="live-transcript"
+                    >
+                      <span className="caption-icon" aria-hidden="true">
+                        CC
+                      </span>
+                      Captions
+                    </button>
+                    <button
+                      className="button button-danger"
+                      disabled={busy || finishing.current}
+                      onClick={() => void finishInterview()}
+                    >
+                      End interview
+                    </button>
+                  </>
                 )}
-                <button
-                  className="button button-secondary"
-                  onClick={() => setCaptions((value) => !value)}
-                >
-                  {captions ? "Hide captions" : "Show captions"}
-                </button>
-                <button
-                  className="button button-secondary"
-                  onClick={toggleMute}
-                  disabled={!agent.current}
-                >
-                  {muted ? "Unmute microphone" : "Mute microphone"}
-                </button>
-                <button
-                  className="button button-danger"
-                  onClick={() => void finishInterview()}
-                >
-                  End interview
-                </button>
               </div>
             </>
           )}
+          <footer className="room-footer">
+            A focused conversation about your experience.
+          </footer>
         </section>
+        {captions && consented && state !== "Complete" && (
+          <div id="live-transcript">
+            <InterviewTranscript
+              turns={turns}
+              candidateName={candidateName}
+              live
+            />
+          </div>
+        )}
       </div>
     </main>
   );
