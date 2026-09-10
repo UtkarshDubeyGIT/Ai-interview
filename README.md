@@ -4,20 +4,21 @@ A compact, evidence-backed AI voice interview demo. A company creates a role and
 
 ## Provider decision
 
-**Selected provider: OpenAI Realtime over WebRTC.**
+**Selected provider: Sarvam Voice Agents.**
 
 Gate evidence recorded on 10 September 2026:
 
-- No `SARVAM_API_KEY` or `SARVAM_AGENT_ID` was available in the supplied implementation environment.
-- Sarvam therefore required additional account enablement and failed the plan's deterministic gate.
-- The fixed fallback was selected before provider-specific session code was built.
-- Browser SDP is proxied through the app to OpenAI's current `POST /v1/realtime/calls` endpoint. The standard API key never reaches the browser.
+- The available Indus workspace allowed an API key and a committed Voice Agent to be created without additional account enablement.
+- The committed “Mira” agent accepts runtime job, rubric, candidate, résumé, completed-transcript, and remaining-time variables; its prompt explicitly treats résumé text as untrusted reference data.
+- The agent is configured for English/Hindi code-mixed interviews, interruption handling, transcript events, adaptive follow-ups, and a 15-minute time box.
+- A live authenticated API check returned a time-limited WebSocket URL and interaction reference for the committed agent version.
+- The application proxies only the signed-URL request. `SARVAM_API_KEY` remains server-side; the browser connects with the returned short-lived URL through Sarvam's official conversational AI SDK.
 
 The deployed provider path is real, not a mock. Local automated tests do not call paid APIs.
 
 ## Local setup
 
-Requirements: Node.js 24+, npm, Docker, and an OpenAI API key.
+Requirements: Node.js 24+, npm, Docker, an OpenAI API key for rubric/report generation, and a Sarvam API key plus committed Voice Agent.
 
 1. Copy `.env.example` to `.env` and replace every placeholder. `APP_BASE_URL` may be `http://localhost:3000` for non-microphone development; browser microphone QA requires HTTPS or localhost.
 2. Start PostgreSQL: `docker compose up -d db`.
@@ -25,6 +26,8 @@ Requirements: Node.js 24+, npm, Docker, and an OpenAI API key.
 4. Run migrations inside the Compose network: `docker compose run --rm app npm run db:migrate`.
 5. Seed the demo account: `docker compose run --rm app npm run db:seed`.
 6. Start the stack: `docker compose up --build app caddy` for a configured domain, or run `npm run dev` with a host-accessible `DATABASE_URL`.
+
+The Sarvam organization and workspace IDs are available in Indus settings. The agent ID is shown in the Voice Agent builder URL. Set all three in `.env`; do not use a browser/embed-scoped key as `SARVAM_API_KEY`.
 
 Quality commands:
 
@@ -54,6 +57,7 @@ Caddy obtains and renews TLS automatically. PostgreSQL has no host port mapping 
 - Every company query scopes data to the authenticated owner.
 - Uploaded PDFs are held only in request memory, parsed locally, capped at 20,000 characters, and discarded.
 - No audio or video is stored. Finalized transcript turns are persisted idempotently.
+- Sarvam receives candidate interview context at session start. The persistent API key is exchanged server-side for a short-lived signed WebSocket URL and is never returned to the browser.
 - Logs contain record identifiers, state/latency, and sanitized errors—not tokens, full transcripts, résumés, or API keys.
 - Reports calculate weighted scores and recommendations on the server and always state that human review is required.
 

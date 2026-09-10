@@ -26,6 +26,7 @@
     "postgres": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "sarvam-conv-ai-sdk": "^0.0.42",
     "zod": "latest"
   },
   "devDependencies": {

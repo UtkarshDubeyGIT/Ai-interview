@@ -1,4 +1,10 @@
 "use client";
+
+import type {
+  ConversationAgent,
+  InteractionConfig,
+  ServerTranscriptMsg,
+} from "sarvam-conv-ai-sdk/browser";
 import { useEffect, useRef, useState } from "react";
 
 type UiState =
@@ -10,6 +16,14 @@ type UiState =
   | "Speaking"
   | "Retrying"
   | "Complete";
+
+type SarvamSession = {
+  baseUrl: string;
+  config: Omit<InteractionConfig, "interaction_type"> & {
+    interaction_type: "call";
+  };
+};
+
 export function InterviewRoom({
   token,
   candidateName,
@@ -25,14 +39,21 @@ export function InterviewRoom({
 }) {
   const [consented, setConsented] = useState(initialStatus !== "not_started");
   const [captions, setCaptions] = useState(false);
+  const [muted, setMuted] = useState(false);
   const [state, setState] = useState<UiState>("Ready");
   const [error, setError] = useState("");
   const [seconds, setSeconds] = useState(initialElapsed);
   const [caption, setCaption] = useState("");
-  const pc = useRef<RTCPeerConnection | null>(null);
-  const stream = useRef<MediaStream | null>(null);
-  const dataChannel = useRef<RTCDataChannel | null>(null);
+  const agent = useRef<ConversationAgent | null>(null);
+  const secondsRef = useRef(initialElapsed);
   const finishing = useRef(false);
+  const completeOnProviderEnd = useRef(false);
+  const transcriptSequence = useRef(0);
+
+  useEffect(() => {
+    secondsRef.current = seconds;
+  }, [seconds]);
+
   useEffect(() => {
     if (
       state === "Listening" ||
@@ -47,50 +68,29 @@ export function InterviewRoom({
       return () => clearInterval(timer);
     }
   }, [state]);
+
   useEffect(() => {
-    if (seconds === 810 && dataChannel.current?.readyState === "open") {
-      dataChannel.current.send(
-        JSON.stringify({
-          type: "conversation.item.create",
-          item: {
-            type: "message",
-            role: "system",
-            content: [
-              {
-                type: "input_text",
-                text: "Time check: wrap up now. Ask at most one final concise question, then thank the candidate.",
-              },
-            ],
-          },
-        }),
-      );
-    }
     if (seconds >= 900 && !finishing.current && state !== "Complete") {
-      finishing.current = true;
-      pc.current?.close();
-      stream.current?.getTracks().forEach((track) => track.stop());
-      void fetch(`/api/interviews/${token}/complete`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ elapsedSeconds: 900 }),
-      }).then((response) => {
-        if (response.ok) setState("Complete");
-        else {
-          finishing.current = false;
-          setError(
-            "Your completed answers are safe. Retry ending the interview.",
-          );
-        }
-      });
+      void finishInterview(false, 900);
     }
-  }, [seconds, state, token]);
+  });
+
+  useEffect(
+    () => () => {
+      completeOnProviderEnd.current = false;
+      void agent.current?.stop();
+      agent.current = null;
+    },
+    [],
+  );
+
   async function persist(
     role: "candidate" | "interviewer",
     text: string,
     eventId: string,
   ) {
     if (!text.trim()) return;
-    await fetch(`/api/interviews/${token}/turns`, {
+    const response = await fetch(`/api/interviews/${token}/turns`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -100,83 +100,132 @@ export function InterviewRoom({
         role,
         text,
         providerEventId: eventId,
-        elapsedSeconds: seconds,
+        elapsedSeconds: secondsRef.current,
       }),
     });
+    if (!response.ok)
+      setError(
+        "A transcript turn could not be saved. It will be retried if repeated.",
+      );
   }
+
+  async function finishInterview(
+    confirmFirst = true,
+    elapsed = secondsRef.current,
+  ) {
+    if (state === "Complete" || finishing.current) return;
+    if (
+      confirmFirst &&
+      !confirm("End the interview and submit your responses?")
+    )
+      return;
+
+    finishing.current = true;
+    completeOnProviderEnd.current = false;
+    const activeAgent = agent.current;
+    agent.current = null;
+    await activeAgent?.stop().catch(() => undefined);
+    const response = await fetch(`/api/interviews/${token}/complete`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ elapsedSeconds: Math.min(900, elapsed) }),
+    });
+    if (response.ok) {
+      setState("Complete");
+      return;
+    }
+
+    finishing.current = false;
+    setState("Retrying");
+    setError("Your completed answers are safe. Retry ending the interview.");
+  }
+
   async function begin() {
+    if (agent.current) return;
+    completeOnProviderEnd.current = false;
     setError("");
     setState("Connecting");
     try {
-      await fetch(`/api/interviews/${token}/consent`, { method: "POST" });
-      setConsented(true);
-      stream.current = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-      const peer = new RTCPeerConnection();
-      pc.current = peer;
-      for (const track of stream.current.getTracks())
-        peer.addTrack(track, stream.current);
-      const audio = document.createElement("audio");
-      audio.autoplay = true;
-      peer.ontrack = (e) => {
-        audio.srcObject = e.streams[0];
-      };
-      const channel = peer.createDataChannel("oai-events");
-      dataChannel.current = channel;
-      channel.onopen = () => {
-        setState("Listening");
-        channel.send(JSON.stringify({ type: "response.create" }));
-      };
-      channel.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "input_audio_buffer.speech_started")
-          setState("Listening");
-        if (data.type === "input_audio_buffer.speech_stopped")
-          setState("Transcribing");
-        if (
-          data.type === "conversation.item.input_audio_transcription.completed"
-        ) {
-          setCaption(data.transcript);
-          void persist(
-            "candidate",
-            data.transcript,
-            data.event_id ?? data.item_id,
-          );
-        }
-        if (data.type === "response.created") setState("Thinking");
-        if (data.type === "response.output_audio.delta") setState("Speaking");
-        if (data.type === "response.output_audio_transcript.done") {
-          setCaption(data.transcript);
-          void persist(
-            "interviewer",
-            data.transcript,
-            data.event_id ?? data.item_id,
-          );
-          setState("Listening");
-        }
-        if (data.type === "error") {
-          setError(
-            data.error?.message ?? "The voice service could not continue.",
-          );
-          setState("Retrying");
-        }
-      };
-      const offer = await peer.createOffer();
-      await peer.setLocalDescription(offer);
-      const response = await fetch(`/api/interviews/${token}/realtime`, {
+      const consentResponse = await fetch(`/api/interviews/${token}/consent`, {
         method: "POST",
-        headers: { "content-type": "application/sdp" },
-        body: offer.sdp,
       });
-      if (!response.ok)
-        throw new Error((await response.json()).error ?? "Could not connect");
-      await peer.setRemoteDescription({
-        type: "answer",
-        sdp: await response.text(),
+      if (!consentResponse.ok)
+        throw new Error("This interview link is unavailable.");
+      setConsented(true);
+
+      const sessionResponse = await fetch(
+        `/api/interviews/${token}/sarvam/session`,
+        { method: "POST" },
+      );
+      const session = (await sessionResponse.json()) as SarvamSession & {
+        error?: string;
+      };
+      if (!sessionResponse.ok)
+        throw new Error(
+          session.error ?? "Could not prepare the voice interview.",
+        );
+
+      const {
+        AgentState,
+        BrowserAudioInterface,
+        ConversationAgent,
+        InteractionType,
+      } = await import("sarvam-conv-ai-sdk/browser");
+      const conversation = new ConversationAgent({
+        apiKey: "server-proxied",
+        platform: "browser",
+        baseUrl: new URL(session.baseUrl, window.location.origin).toString(),
+        config: {
+          ...session.config,
+          interaction_type: InteractionType.CALL,
+        },
+        audioInterface: new BrowserAudioInterface(16000),
+        stateCallback: (nextState) => {
+          if (nextState === AgentState.CONNECTING) setState("Connecting");
+          if (nextState === AgentState.LISTENING) setState("Listening");
+          if (nextState === AgentState.SPEAKING) setState("Speaking");
+          if (nextState === AgentState.ERROR) setState("Retrying");
+        },
+        eventCallback: async (event) => {
+          if (event.type === "server.event.user_speech_start")
+            setState("Listening");
+          if (event.type === "server.event.user_speech_end")
+            setState("Transcribing");
+          if (event.type === "server.action.interaction_end")
+            await finishInterview(false);
+        },
+        endCallback: async () => {
+          if (completeOnProviderEnd.current) await finishInterview(false);
+        },
+        transcriptCallback: async (message: ServerTranscriptMsg) => {
+          const text = message.content.trim();
+          if (!text) return;
+          const role = message.role === "user" ? "candidate" : "interviewer";
+          setCaption(text);
+          if (role === "candidate") setState("Thinking");
+          const eventId = [
+            "sarvam",
+            conversation.getInteractionId() ?? "connecting",
+            message.timestamp,
+            message.role,
+            ++transcriptSequence.current,
+          ].join(":");
+          await persist(role, text, eventId);
+        },
       });
+
+      agent.current = conversation;
+      await conversation.start();
+      if (!(await conversation.waitForConnect(12)))
+        throw new Error(
+          "The voice service took too long to connect. Please retry.",
+        );
+      completeOnProviderEnd.current = true;
+      setState("Listening");
     } catch (reason) {
-      stream.current?.getTracks().forEach((t) => t.stop());
+      completeOnProviderEnd.current = false;
+      await agent.current?.stop().catch(() => undefined);
+      agent.current = null;
       setError(
         reason instanceof DOMException && reason.name === "NotAllowedError"
           ? "Microphone access was denied. Allow it in your browser settings, then retry."
@@ -187,24 +236,14 @@ export function InterviewRoom({
       setState("Retrying");
     }
   }
-  async function complete() {
-    if (state === "Complete") return;
-    if (!confirm("End the interview and submit your responses?")) return;
-    if (finishing.current) return;
-    finishing.current = true;
-    pc.current?.close();
-    stream.current?.getTracks().forEach((t) => t.stop());
-    const response = await fetch(`/api/interviews/${token}/complete`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ elapsedSeconds: seconds }),
-    });
-    if (response.ok) setState("Complete");
-    else {
-      finishing.current = false;
-      setError("Your completed answers are safe. Retry ending the interview.");
-    }
+
+  function toggleMute() {
+    if (!agent.current) return;
+    if (muted) agent.current.unmute();
+    else agent.current.mute();
+    setMuted(!muted);
   }
+
   if (state === "Complete")
     return (
       <main className="interview-page">
@@ -221,6 +260,7 @@ export function InterviewRoom({
         </div>
       </main>
     );
+
   return (
     <main className="interview-page">
       <div className="interview-shell">
@@ -271,8 +311,8 @@ export function InterviewRoom({
                 </strong>
               </div>
               <div className="wave" aria-hidden="true">
-                {Array.from({ length: 15 }, (_, i) => (
-                  <span key={i} />
+                {Array.from({ length: 15 }, (_, index) => (
+                  <span key={index} />
                 ))}
               </div>
               {captions && (
@@ -296,18 +336,30 @@ export function InterviewRoom({
                   flexWrap: "wrap",
                 }}
               >
-                {state === "Retrying" && (
+                {(state === "Retrying" || state === "Ready") && (
                   <button className="button button-primary" onClick={begin}>
-                    Retry connection
+                    {state === "Retrying"
+                      ? "Retry connection"
+                      : "Start interview"}
                   </button>
                 )}
                 <button
                   className="button button-secondary"
-                  onClick={() => setCaptions((v) => !v)}
+                  onClick={() => setCaptions((value) => !value)}
                 >
                   {captions ? "Hide captions" : "Show captions"}
                 </button>
-                <button className="button button-danger" onClick={complete}>
+                <button
+                  className="button button-secondary"
+                  onClick={toggleMute}
+                  disabled={!agent.current}
+                >
+                  {muted ? "Unmute microphone" : "Mute microphone"}
+                </button>
+                <button
+                  className="button button-danger"
+                  onClick={() => void finishInterview()}
+                >
                   End interview
                 </button>
               </div>

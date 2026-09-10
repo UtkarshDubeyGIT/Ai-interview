@@ -17,7 +17,7 @@ services:
   app:
     build: .
     restart: unless-stopped
-    env_file: .env
+    env_file: ${APP_ENV_FILE:-.env}
     depends_on:
       db:
         condition: service_healthy
