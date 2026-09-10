@@ -1,12 +1,16 @@
 # ElevenLabs UI
 
-Waveform, Conversation, and Message in `src/components/ui/` are adapted from
+Orb, Bar Visualizer, Waveform, Conversation, and Message in
+`src/components/ui/` are adapted from
 https://github.com/elevenlabs/ui at commit `88a5342ee74632a3f66f3cf9a75cbe87f97007f9`.
-Waveform retains the upstream canvas renderer. Conversation and Message retain
-the composable API with local semantic CSS; Conversation uses native scrolling
-and ResizeObserver instead of the upstream scrolling dependency. Unused variants,
-avatar dependencies, and microphone capture were omitted. No ElevenLabs service
-or credentials are required.
+Orb retains the upstream Three.js shader, Perlin-noise texture, agent states, and
+manual audio-reactivity API. Bar Visualizer uses the live Sarvam RMS meter and
+the upstream state-driven visual language. Waveform retains the upstream canvas
+renderer. Conversation and Message retain the composable API with local semantic
+CSS; Conversation uses native scrolling and ResizeObserver instead of the
+upstream scrolling dependency. Unused variants, avatar dependencies, and
+microphone capture were omitted. No ElevenLabs service or credentials are
+required.
 
 MIT License
 

@@ -18,26 +18,36 @@
   },
   "dependencies": {
     "@auth/core": "latest",
+    "@phosphor-icons/react": "^2.1.10",
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "bcryptjs": "latest",
     "next": "latest",
     "next-auth": "beta",
     "openai": "latest",
     "pdf-parse": "latest",
     "postgres": "latest",
-    "react": "latest",
-    "react-dom": "latest",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "sarvam-conv-ai-sdk": "^0.0.42",
+    "three": "^0.186.0",
     "zod": "latest"
   },
   "devDependencies": {
+    "@napi-rs/wasm-runtime": "^1.2.4",
+    "@rolldown/binding-wasm32-wasi": "^1.2.8",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/three": "^0.185.4",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "prettier": "latest",
     "tsx": "latest",
     "typescript": "latest",
     "vitest": "latest"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-darwin-arm64": "^1.2.8"
   }
 }

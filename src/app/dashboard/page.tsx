@@ -2,14 +2,17 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { CompanyShell } from "@/components/company-shell";
+import { CandidateStatus } from "@/components/candidate-status";
 import { db } from "@/server/db";
+import { Plus, UserPlus } from "@phosphor-icons/react/dist/ssr";
+import type { CompletionReason } from "@/domain/interview";
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   const rows = await db()`
     SELECT j.id job_id, j.title, j.created_at, c.id candidate_id, c.candidate_name,
-      c.candidate_email, c.status
+      c.candidate_email, c.status, c.completion_reason
     FROM jobs j LEFT JOIN candidate_interviews c ON c.job_id = j.id
     WHERE j.owner_id = ${session.user.id}
     ORDER BY j.created_at DESC, c.created_at DESC
@@ -19,6 +22,7 @@ export default async function DashboardPage() {
     candidate_name: string;
     candidate_email: string;
     status: string;
+    completion_reason: string | null;
   };
   const jobs = new Map<
     string,
@@ -37,6 +41,9 @@ export default async function DashboardPage() {
         candidate_name: String(row.candidate_name),
         candidate_email: String(row.candidate_email),
         status: String(row.status),
+        completion_reason: row.completion_reason
+          ? String(row.completion_reason)
+          : null,
       });
     jobs.set(String(row.job_id), job);
   }
@@ -52,7 +59,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Link className="button button-primary" href="/jobs/new">
-          Create role
+          <Plus size={18} weight="bold" /> Create role
         </Link>
       </div>
       {jobs.size === 0 ? (
@@ -63,7 +70,7 @@ export default async function DashboardPage() {
             report.
           </p>
           <Link className="button button-primary" href="/jobs/new">
-            Create your first role
+            <Plus size={18} weight="bold" /> Create your first role
           </Link>
         </section>
       ) : (
@@ -81,7 +88,7 @@ export default async function DashboardPage() {
                   className="button button-secondary"
                   href={`/jobs/${job.id}/candidates/new`}
                 >
-                  Add candidate
+                  <UserPlus size={18} /> Add candidate
                 </Link>
               </div>
               {job.candidates.length ? (
@@ -105,11 +112,12 @@ export default async function DashboardPage() {
                             </span>
                           </td>
                           <td>
-                            <span
-                              className={`status status-${candidate.status}`}
-                            >
-                              {String(candidate.status).replaceAll("_", " ")}
-                            </span>
+                            <CandidateStatus
+                              status={candidate.status}
+                              completionReason={
+                                candidate.completion_reason as CompletionReason | null
+                              }
+                            />
                           </td>
                           <td>
                             <Link

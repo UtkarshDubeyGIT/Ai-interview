@@ -36,10 +36,6 @@
   --theme-red-500: #f35863;
   --theme-red-600: #d42539;
   --theme-red-700: #a70c1e;
-  --theme-yellow-100: #fffccc;
-  --theme-yellow-300: #ebdb00;
-  --theme-yellow-700: #5b5010;
-
   /* Semantic colors. */
   --theme-bg-canvas: var(--theme-white);
   --theme-bg-subtle: var(--theme-neutral-50);
@@ -166,10 +162,11 @@
 
 .theme-button--primary {
   color: var(--theme-white);
-  background: var(--theme-gradient-brand);
-  box-shadow:
-    0 3px 3px rgb(18 25 217 / 30%),
-    inset 0 -3px 4px rgb(91 18 217 / 30%);
+  background: var(--theme-action-primary);
+}
+
+.theme-button--primary:hover {
+  background: var(--theme-action-primary-hover);
 }
 
 .theme-button--secondary {

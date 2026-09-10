@@ -17,7 +17,7 @@ export default function LoginPage() {
           </p>
         </div>
         <p style={{ color: "var(--theme-neutral-400)" }}>
-          15-minute interviews · English + Hinglish · Human review required
+          15-minute interviews · English only · Human review required
         </p>
       </section>
       <section className="auth-panel">

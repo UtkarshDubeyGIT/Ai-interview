@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { findInterviewByToken } from "@/server/interviews";
 import { buildSarvamAgentVariables } from "@/server/voice/sarvam";
+import { sarvamAgentVersion } from "@/server/voice/sarvam";
 
 export async function POST(
   _: Request,
@@ -22,6 +23,7 @@ export async function POST(
   const orgId = process.env.SARVAM_ORG_ID;
   const workspaceId = process.env.SARVAM_WORKSPACE_ID;
   const agentId = process.env.SARVAM_AGENT_ID;
+  const version = sarvamAgentVersion(process.env.SARVAM_AGENT_VERSION);
   if (!orgId || !workspaceId || !agentId || !process.env.SARVAM_API_KEY) {
     console.error("sarvam_configuration_missing", {
       interviewId: interview.id,
@@ -58,7 +60,7 @@ export async function POST(
         org_id: orgId,
         workspace_id: workspaceId,
         app_id: agentId,
-        version: 1,
+        version,
         interaction_type: "call",
         input_sample_rate: 16000,
         output_sample_rate: 22050,

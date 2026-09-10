@@ -10,7 +10,7 @@ Gate evidence recorded on 10 September 2026:
 
 - The available Indus workspace allowed an API key and a committed Voice Agent to be created without additional account enablement.
 - The committed “Mira” agent accepts runtime job, rubric, candidate, résumé, completed-transcript, and remaining-time variables; its prompt explicitly treats résumé text as untrusted reference data.
-- The agent is configured for English/Hindi code-mixed interviews, interruption handling, transcript events, adaptive follow-ups, and a 15-minute time box.
+- The agent is configured for English-only interviews, interruption handling, transcript events, adaptive follow-ups, and a 15-minute time box.
 - A live authenticated API check returned a time-limited WebSocket URL and interaction reference for the committed agent version.
 - The application proxies only the signed-URL request. `SARVAM_API_KEY` remains server-side; the browser connects with the returned short-lived URL through Sarvam's official conversational AI SDK.
 
@@ -68,7 +68,7 @@ Caddy obtains and renews TLS automatically. PostgreSQL has no host port mapping 
 Before presenting on a public HTTPS domain, complete and record:
 
 - Signup, seeded login, logout, and a cross-user ownership attempt.
-- One English and one Hinglish 15-minute interview in current desktop Chrome.
+- One English 15-minute interview in a current desktop Chromium browser.
 - Microphone denial/recovery, interruption, captions, refresh/reconnect, temporary network loss, early completion, and the 15-minute cap.
 - Four-competency coverage, three or four relevant résumé questions, and a spoken résumé correction.
 - Report failure/retry, insufficient evidence, report-link revoke/regenerate, and candidate deletion.

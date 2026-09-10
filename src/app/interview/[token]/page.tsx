@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { findInterviewByToken } from "@/server/interviews";
 import { InterviewRoom } from "@/components/interview-room";
 import { db } from "@/server/db";
+import { completionTitle, type CompletionReason } from "@/domain/interview";
 
 export default async function InterviewPage({
   params,
@@ -19,10 +20,15 @@ export default async function InterviewPage({
             <div className="portrait" style={{ margin: "0 auto 1.5rem" }}>
               ✓
             </div>
-            <h1 className="heading">Interview complete</h1>
+            <h1 className="heading">
+              {completionTitle(
+                interview.completion_reason as CompletionReason | null,
+              )}
+            </h1>
             <p style={{ color: "var(--theme-neutral-300)" }}>
-              Thank you, {interview.candidate_name}. Your responses have been
-              submitted to the company.
+              {interview.completion_reason === "candidate_ended_early"
+                ? `Your completed responses were saved, ${interview.candidate_name}. The company will see that the interview ended early.`
+                : `Thank you, ${interview.candidate_name}. Your responses have been submitted to the company.`}
             </p>
           </section>
         </div>

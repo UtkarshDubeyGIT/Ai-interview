@@ -1,10 +1,24 @@
 "use client";
-import { useState } from "react";
+import { Copy, UserCircle } from "@phosphor-icons/react";
+import { useRef, useState } from "react";
 
 export function CandidateForm({ jobId }: { jobId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [copyMessage, setCopyMessage] = useState("");
   const [created, setCreated] = useState<{ id: string; inviteUrl: string }>();
+  const linkInput = useRef<HTMLInputElement>(null);
+
+  async function copyInvite() {
+    if (!created) return;
+    try {
+      await navigator.clipboard.writeText(created.inviteUrl);
+      setCopyMessage("Interview link copied.");
+    } catch {
+      linkInput.current?.select();
+      setCopyMessage("Copy the selected link manually.");
+    }
+  }
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -32,6 +46,7 @@ export function CandidateForm({ jobId }: { jobId: string }) {
         </p>
         <input
           className="input"
+          ref={linkInput}
           readOnly
           value={created.inviteUrl}
           aria-label="Private interview link"
@@ -39,19 +54,23 @@ export function CandidateForm({ jobId }: { jobId: string }) {
         <div style={{ display: "flex", gap: ".75rem", flexWrap: "wrap" }}>
           <button
             className="button button-primary"
-            onClick={async () => {
-              await navigator.clipboard.writeText(created.inviteUrl);
-            }}
+            type="button"
+            onClick={copyInvite}
           >
+            <Copy size={18} aria-hidden="true" />
             Copy interview link
           </button>
           <a
             className="button button-secondary"
             href={`/candidates/${created.id}`}
           >
+            <UserCircle size={18} aria-hidden="true" />
             View candidate
           </a>
         </div>
+        <p className="copy-status" aria-live="polite">
+          {copyMessage}
+        </p>
       </section>
     );
   return (

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/server/db";
 import { findInterviewByToken } from "@/server/interviews";
+import { sarvamAgentVersion } from "@/server/voice/sarvam";
 
 const signedUrlResponse = z.object({
   url: z.string().url(),
@@ -28,6 +29,7 @@ export async function GET(
   const orgId = process.env.SARVAM_ORG_ID;
   const workspaceId = process.env.SARVAM_WORKSPACE_ID;
   const agentId = process.env.SARVAM_AGENT_ID;
+  const version = sarvamAgentVersion(process.env.SARVAM_AGENT_VERSION);
   const expectedPath = [
     "orgs",
     orgId,
@@ -55,7 +57,7 @@ export async function GET(
     "https://apps.sarvam.ai/api/app-runtime/",
   );
   upstreamUrl.searchParams.set("interaction_type", "call");
-  upstreamUrl.searchParams.set("version", "1");
+  upstreamUrl.searchParams.set("version", String(version));
   const started = Date.now();
   const upstream = await fetch(upstreamUrl, {
     headers: { "X-API-Key": apiKey },

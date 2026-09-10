@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { ownedCandidate } from "@/server/ownership";
-import { createReport } from "@/app/api/interviews/[token]/complete/route";
+import { createReport } from "@/server/reports";
 
 export async function POST(
   _: Request,

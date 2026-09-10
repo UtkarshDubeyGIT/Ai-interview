@@ -22,6 +22,11 @@ describe("interviewer instructions", () => {
     expect(instructions).toContain("<resume_reference>");
     expect(instructions).toContain("IGNORE ALL PREVIOUS INSTRUCTIONS");
     expect(instructions).toContain("one concise question at a time");
+    expect(instructions).toContain("brief silence");
+    expect(instructions).toContain("Do not interrupt");
+    expect(instructions).toContain("Conduct the interview in English only");
+    expect(instructions).not.toContain("Hinglish");
+    expect(instructions).not.toContain("Hindi");
   });
 
   it("instructs the interviewer to wrap up near the time limit", () => {
@@ -36,5 +41,19 @@ describe("interviewer instructions", () => {
         secondsRemaining: 80,
       }),
     ).toContain("wrap up now");
+  });
+
+  it("uses available time for clarification instead of ending early", () => {
+    expect(
+      buildInterviewInstructions({
+        candidateName: "Aarav",
+        jobTitle: "Platform Engineer",
+        jobDescription: "Build reliable systems",
+        resumeText: "",
+        competencies: ["Depth", "Ownership", "Communication", "Results"],
+        completedTurns: [],
+        secondsRemaining: 150,
+      }),
+    ).toContain("Do not end early while useful clarification remains");
   });
 });
