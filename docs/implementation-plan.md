@@ -1,4 +1,4 @@
-# AI Interview Demo — Implementation Plan
+# Interview Buddy — Implementation Plan
 
 **Status:** Finalized for implementation  
 **Target repository:** <https://github.com/utkarshdubeygit/ai-interview>  

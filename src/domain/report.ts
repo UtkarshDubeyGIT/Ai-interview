@@ -43,12 +43,12 @@ export const evaluationSchema = z
     const scores = evaluation.competencies.map((item) => item.score);
     if (
       evaluation.assessmentStatus === "scored" &&
-      scores.some((score) => score === null)
+      scores.every((score) => score === null)
     ) {
       context.addIssue({
         code: "custom",
         path: ["competencies"],
-        message: "Scored reports require four competency scores",
+        message: "Scored reports require at least one observed competency",
       });
     }
     if (
@@ -83,21 +83,46 @@ export function finalizeEvaluation(
       }
     : evaluation;
   const parsed = evaluationSchema.parse(prepared);
-  if (parsed.assessmentStatus !== "scored") {
+  const observed = parsed.competencies.flatMap((c, index) =>
+    c.score === null ? [] : [{ score: c.score, weight: weights[index] ?? 0 }],
+  );
+  const coverage = observed.reduce((sum, c) => sum + c.weight, 0);
+  const metadata = {
+    evaluationVersion: 2,
+    evidenceCoverage: coverage,
+    generatedAt: new Date().toISOString(),
+  };
+  if (
+    parsed.assessmentStatus !== "scored" ||
+    observed.length < 2 ||
+    coverage < 50
+  ) {
     return {
       ...parsed,
+      ...metadata,
+      assessmentStatus: early
+        ? ("closed_early" as const)
+        : ("insufficient_evidence" as const),
+      screeningRecommendation: "more_evidence" as const,
       weightedScore: null,
       recommendation: null,
     };
   }
   const score = weightedScore(
-    parsed.competencies.map((competency, index) => ({
-      score: competency.score!,
-      weight: weights[index] ?? 0,
-    })),
+    observed.map((c) => ({ ...c, weight: (c.weight * 100) / coverage })),
   );
+  const screeningRecommendation =
+    score >= 3
+      ? ("in_person" as const)
+      : observed.length === 4 &&
+          parsed.concerns.length > 0 &&
+          parsed.competencies.every((c) => c.evidence.length > 0)
+        ? ("not_hireable" as const)
+        : ("more_evidence" as const);
   return {
     ...parsed,
+    ...metadata,
+    screeningRecommendation,
     weightedScore: Math.round(score * 100) / 100,
     recommendation: recommendationForScore(score),
   };

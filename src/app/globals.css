@@ -1117,3 +1117,249 @@ tr:last-child td {
     width: 17px;
   }
 }
+
+/* Interview Buddy report: a restrained, printable document surface. */
+.brand-logo {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.report-view {
+  gap: 2rem;
+  max-width: 980px;
+  margin-inline: auto;
+  overflow-wrap: anywhere;
+}
+.report-card:has(.report-view),
+section.card:has(> .report-view) {
+  padding: clamp(1.25rem, 4vw, 3.5rem);
+  border-radius: 4px;
+  border-top: 4px solid #7c3aed;
+  box-shadow: 0 8px 32px #29203808;
+}
+.report-masthead {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--theme-border-subtle);
+  padding-bottom: 1.5rem;
+}
+.report-title {
+  font-family: Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  margin: 0.55rem 0 0;
+}
+.report-edition {
+  font-size: 0.75rem;
+  color: var(--theme-text-secondary);
+  white-space: nowrap;
+  padding-top: 0.2rem;
+}
+.report-verdict {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+}
+.report-verdict-note {
+  max-width: 48ch;
+  color: var(--theme-text-secondary);
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+.report-stamp {
+  width: 205px;
+  padding: 0.9rem;
+  border: 3px double currentColor;
+  border-radius: 3px;
+  text-align: center;
+  color: #6d28d9;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  transform: rotate(-2deg);
+}
+.report-stamp strong {
+  font-size: 0.96rem;
+  line-height: 1.35;
+}
+.report-stamp span {
+  border-top: 1px solid currentColor;
+  padding-top: 0.35rem;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.report-stamp-not_hireable {
+  color: #9b3535;
+}
+.report-stamp-more_evidence {
+  color: #7a601f;
+}
+.report-summary {
+  grid-template-columns: minmax(0, 1fr) 135px;
+  align-items: start;
+}
+.report-summary > .report-score {
+  order: 2;
+}
+.report-summary h2 {
+  font-size: 1.3rem;
+}
+.report-summary p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.report-score {
+  width: auto;
+  aspect-ratio: auto;
+  padding: 1.3rem 0.75rem;
+  border-radius: 3px;
+}
+.report-score span {
+  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+}
+.report-score em {
+  font: normal 0.85rem var(--theme-font-body);
+}
+.report-score small {
+  line-height: 1.5;
+}
+.report-method {
+  border-left: 3px solid #c4b5fd;
+  padding: 0.7rem 1.2rem;
+  background: #faf8ff;
+  font-size: 0.85rem;
+}
+.report-method p {
+  margin: 0.35rem 0 0;
+  color: var(--theme-text-secondary);
+  line-height: 1.65;
+}
+.report-view .report-subsection {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+.report-columns {
+  gap: 2rem;
+}
+.report-view .competency-grid {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.report-view .competency-card {
+  border: 0;
+  border-bottom: 1px solid var(--theme-border-subtle);
+  border-radius: 0;
+  padding: 1.25rem 0;
+}
+.report-view .competency-card:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.report-view .competency-card p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.report-view .competency-heading h3 {
+  margin: 0;
+}
+.report-view .resume-impact {
+  border: 0;
+  padding: 0;
+}
+.report-footer {
+  border-top: 1px solid var(--theme-border-subtle);
+  padding-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.7rem;
+  color: var(--theme-text-secondary);
+}
+@media (max-width: 640px) {
+  .report-masthead,
+  .report-footer {
+    flex-direction: column;
+  }
+  .report-verdict {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .report-stamp {
+    width: 190px;
+    justify-self: start;
+  }
+  .report-summary {
+    grid-template-columns: 1fr;
+  }
+  .report-summary > .report-score {
+    order: 0;
+    width: 145px;
+  }
+  .report-section-heading {
+    flex-wrap: wrap;
+  }
+  .report-section-heading .status {
+    margin-left: 0;
+  }
+  .topbar-inner {
+    flex-wrap: wrap;
+    padding-block: 1rem;
+  }
+  .topbar-inner .button {
+    flex-wrap: wrap;
+  }
+  .page-head {
+    flex-wrap: wrap;
+  }
+}
+@media print {
+  body,
+  html {
+    background: white;
+  }
+  .topbar,
+  .candidate-control-row,
+  .control-message,
+  .transcript-review,
+  .report-print {
+    display: none !important;
+  }
+  .shell {
+    width: 100%;
+  }
+  .main {
+    padding: 0;
+  }
+  .card {
+    box-shadow: none !important;
+    border: 0;
+  }
+  .report-view {
+    max-width: none;
+    gap: 1.25rem;
+  }
+  .report-card:has(.report-view),
+  section.card:has(> .report-view) {
+    padding: 0;
+  }
+  .report-stamp,
+  .report-score,
+  .competency-card,
+  .report-subsection {
+    break-inside: avoid;
+  }
+  .report-title,
+  .report-section-heading {
+    break-after: avoid;
+  }
+}
+.main > .report-print {
+  margin-bottom: 1rem;
+}

@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/brand-logo";
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
 
@@ -6,7 +7,7 @@ export default function RegisterPage() {
     <main className="auth-page">
       <section className="auth-story">
         <div className="brand">
-          <span className="brand-mark">V</span> Violet Interview
+          <BrandLogo />
         </div>
         <div>
           <p className="eyebrow">A clearer first conversation</p>

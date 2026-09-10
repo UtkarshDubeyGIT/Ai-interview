@@ -1,3 +1,5 @@
+import { PrintReport } from "@/components/print-report";
+import { BrandLogo } from "@/components/brand-logo";
 import { notFound } from "next/navigation";
 import { db } from "@/server/db";
 import { hashSecretToken } from "@/server/security/tokens";
@@ -29,10 +31,11 @@ export default async function SharedReportPage({
           <p className="muted">{row.title}</p>
         </div>
         <div className="brand">
-          <span className="brand-mark">V</span>Violet Interview
+          <BrandLogo />
         </div>
       </div>
-      <section className="card card-pad">
+      <PrintReport />
+      <section className="card card-pad report-card">
         <ReportView report={report} />
       </section>
     </main>

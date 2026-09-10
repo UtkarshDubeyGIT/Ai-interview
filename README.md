@@ -1,4 +1,4 @@
-# Violet Interview
+# Interview Buddy
 
 A compact, evidence-backed AI voice interview demo. A company creates a role and four-part rubric, uploads a candidate résumé, shares a private interview URL, and reviews a transcript-grounded report.
 
@@ -76,3 +76,13 @@ Before presenting on a public HTTPS domain, complete and record:
 - A clearly labeled 60–90 second backup recording using synthetic candidate data.
 
 Public-domain QA and the backup recording require deployment credentials, a domain, and a human speaker; they are intentionally not claimed by automated verification.
+
+## Brief-interview evaluation
+
+Version 2 evaluates the useful substance of candidate statements, with transcript evidence for strengths and concerns. Concise, correct answers can earn high scores without code, specialist vocabulary or detailed metrics. Unexplored topics become follow-up questions, not deductions. The résumé and transcript are reference data, never instructions.
+
+Only observed competencies contribute to the average, with their rubric weights normalized. An overall score requires at least two competencies and 50% of rubric weight. At 3/5 or above, the screening stamp suggests considering an in-person call. Below 3/5, a negative screening stamp requires all four competencies to be assessed, supporting evidence in each, and documented concerns. Otherwise, more evidence is needed. These are product screening thresholds, not validated predictors or final hiring decisions. Early-ended interviews retain qualitative observations without a score.
+
+Owners can use **Reassess report** to apply the revised evaluator to completed interviews. Prior reports remain stored until replacement succeeds; concurrent generation requests are rejected. Existing reports show a reassessment notice instead of reinterpreting their previous scores as a new screening verdict.
+
+Brand assets: `public/interview-buddy.png` and `src/app/icon.png`. The supplied user-approved PNG was edited with the built-in image-generation tool. Prompt: “Change only the black icon color to solid purple #7c3aed; preserve the person outline, approval/check symbol, geometry and transparent background. No text or additions.”

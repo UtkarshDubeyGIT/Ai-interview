@@ -1,5 +1,7 @@
 "use client";
 
+import { BrandLogo } from "@/components/brand-logo";
+
 import {
   ClosedCaptioning,
   Microphone,
@@ -406,7 +408,7 @@ export function InterviewRoom({
     <main className="interview-page">
       <div className="interview-topline">
         <span className="brand">
-          <span className="brand-mark">V</span> Violet Interview
+          <BrandLogo />
         </span>
         <span className="private-label">Private interview</span>
       </div>

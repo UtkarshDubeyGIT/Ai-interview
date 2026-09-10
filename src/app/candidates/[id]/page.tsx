@@ -52,7 +52,6 @@ export default async function CandidatePage({
       />
       <div className="stack candidate-review-content">
         <section className="card card-pad report-card">
-          <p className="eyebrow">Report</p>
           {candidate.report ? (
             <ReportView report={candidate.report as ReportData} />
           ) : (

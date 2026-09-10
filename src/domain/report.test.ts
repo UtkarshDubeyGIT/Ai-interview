@@ -113,4 +113,75 @@ describe("structured evaluation", () => {
       ),
     });
   });
+  it("scores covered competencies without treating unexplored topics as zero", () => {
+    const result = finalizeEvaluation(
+      {
+        ...evaluation,
+        competencies: evaluation.competencies.map((c, i) => ({
+          ...c,
+          score: i < 2 ? 4 : null,
+        })),
+      },
+      [25, 25, 25, 25],
+      "agent_completed",
+    );
+    expect(result).toMatchObject({
+      weightedScore: 4,
+      evidenceCoverage: 50,
+      screeningRecommendation: "in_person",
+    });
+  });
+  it("does not reject on partial evidence even when observed scores are low", () => {
+    const result = finalizeEvaluation(
+      {
+        ...evaluation,
+        competencies: evaluation.competencies.map((c, i) => ({
+          ...c,
+          score: i < 2 ? 2 : null,
+        })),
+      },
+      [25, 25, 25, 25],
+      "agent_completed",
+    );
+    expect(result.screeningRecommendation).toBe("more_evidence");
+  });
+  it("withholds an overall score when only one competency was explored", () => {
+    const result = finalizeEvaluation(
+      {
+        ...evaluation,
+        competencies: evaluation.competencies.map((c, i) => ({
+          ...c,
+          score: i === 0 ? 4 : null,
+        })),
+      },
+      [70, 10, 10, 10],
+      "agent_completed",
+    );
+    expect(result).toMatchObject({
+      weightedScore: null,
+      screeningRecommendation: "more_evidence",
+    });
+  });
+  it("requires documented concerns before a negative screening recommendation", () => {
+    const low = {
+      ...evaluation,
+      concerns: [],
+      competencies: evaluation.competencies.map((c) => ({
+        ...c,
+        score: 2,
+        evidence: ["Incorrect explanation after clarification"],
+      })),
+    };
+    expect(
+      finalizeEvaluation(low, [25, 25, 25, 25], "agent_completed")
+        .screeningRecommendation,
+    ).toBe("more_evidence");
+    expect(
+      finalizeEvaluation(
+        { ...low, concerns: ["Incorrect explanation after clarification"] },
+        [25, 25, 25, 25],
+        "agent_completed",
+      ).screeningRecommendation,
+    ).toBe("not_hireable");
+  });
 });

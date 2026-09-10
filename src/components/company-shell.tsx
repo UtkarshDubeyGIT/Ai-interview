@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/brand-logo";
 import Link from "next/link";
 import { signOut } from "@/auth";
 
@@ -13,7 +14,7 @@ export function CompanyShell({
       <header className="topbar">
         <div className="shell topbar-inner">
           <Link href="/dashboard" className="brand">
-            <span className="brand-mark">V</span> Violet Interview
+            <BrandLogo />
           </Link>
           <form
             action={async () => {

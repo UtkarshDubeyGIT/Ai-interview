@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 
 export async function createReport(id: string) {
   const [interview] = await db()`
-    SELECT c.id,c.resume_text,c.completion_reason,j.rubric
+    SELECT c.id,c.resume_text,c.completion_reason,c.elapsed_seconds,j.rubric
     FROM candidate_interviews c
     JOIN jobs j ON j.id=c.job_id
     WHERE c.id=${id}
@@ -27,6 +27,7 @@ export async function createReport(id: string) {
       rubric: interview.rubric,
       turns,
       resumeText: interview.resume_text,
+      elapsedSeconds: interview.elapsed_seconds,
       completionReason:
         (interview.completion_reason as CompletionReason | null) ??
         "agent_completed",

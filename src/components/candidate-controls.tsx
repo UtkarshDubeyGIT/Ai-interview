@@ -8,7 +8,8 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PrintReport } from "./print-report";
 import { ConfirmationDialog } from "./confirmation-dialog";
 
 export function CandidateControls({
@@ -24,6 +25,12 @@ export function CandidateControls({
   const [share, setShare] = useState(initialShare);
   const [dialog, setDialog] = useState<"delete" | "revoke" | null>(null);
   const linkRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (candidate.status !== "processing") return;
+    const timer = setInterval(() => router.refresh(), 4000);
+    return () => clearInterval(timer);
+  }, [candidate.status, router]);
 
   async function request(action: string, method = "POST") {
     const response = await fetch(`/api/candidates/${candidate.id}/${action}`, {
@@ -142,13 +149,23 @@ export function CandidateControls({
           )}
         </div>
         <div className="candidate-actions candidate-actions-right">
-          {candidate.status === "report_failed" && (
+          {!!candidate.report && <PrintReport />}
+          {candidate.status === "processing" && (
+            <span className="muted" role="status">
+              Preparing updated assessment…
+            </span>
+          )}
+          {(candidate.status === "report_failed" ||
+            candidate.status === "completed") && (
             <button
               className="button button-primary"
               disabled={busy}
               onClick={retryReport}
             >
-              <ArrowClockwise size={17} /> Retry report
+              <ArrowClockwise size={17} />{" "}
+              {candidate.status === "completed"
+                ? "Reassess report"
+                : "Retry report"}
             </button>
           )}
           <button
