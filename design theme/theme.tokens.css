@@ -1,0 +1,198 @@
+:root {
+  /* Primitive color palette for the technical violet theme. */
+  --theme-white: #ffffff;
+  --theme-neutral-50: #f8fafc;
+  --theme-neutral-100: #eff4f8;
+  --theme-neutral-200: #dbe4eb;
+  --theme-neutral-300: #bfcbd4;
+  --theme-neutral-400: #a3b4c2;
+  --theme-neutral-500: #8193a2;
+  --theme-neutral-600: #65717b;
+  --theme-neutral-700: #464e56;
+  --theme-neutral-800: #363d44;
+  --theme-neutral-900: #262b30;
+  --theme-neutral-950: #121b24;
+  --theme-ink: #071013;
+
+  --theme-violet-100: #f5f3fc;
+  --theme-violet-200: #d6d4f7;
+  --theme-violet-300: #b9b5f5;
+  --theme-violet-400: #9690f8;
+  --theme-violet-500: #7c70fa;
+  --theme-violet-600: #6b3eff;
+  --theme-violet-700: #5b12d9;
+  --theme-violet-800: #422682;
+  --theme-violet-900: #34224f;
+
+  --theme-green-100: #e3fcec;
+  --theme-green-200: #bbf7d0;
+  --theme-green-400: #30d98a;
+  --theme-green-500: #10b981;
+  --theme-green-600: #0c7e67;
+  --theme-green-700: #0a6148;
+
+  --theme-red-100: #feeeec;
+  --theme-red-200: #fcd7d4;
+  --theme-red-500: #f35863;
+  --theme-red-600: #d42539;
+  --theme-red-700: #a70c1e;
+  --theme-yellow-100: #fffccc;
+  --theme-yellow-300: #ebdb00;
+  --theme-yellow-700: #5b5010;
+
+  /* Semantic colors. */
+  --theme-bg-canvas: var(--theme-white);
+  --theme-bg-subtle: var(--theme-neutral-50);
+  --theme-bg-inverse: var(--theme-ink);
+  --theme-bg-inverse-raised: #131921;
+  --theme-bg-violet-soft: var(--theme-violet-100);
+  --theme-bg-violet-deep: #211c3b;
+  --theme-text-primary: var(--theme-neutral-900);
+  --theme-text-secondary: var(--theme-neutral-600);
+  --theme-text-inverse: var(--theme-white);
+  --theme-text-accent: var(--theme-violet-600);
+  --theme-border-subtle: var(--theme-neutral-200);
+  --theme-border-inverse: rgb(124 112 250 / 32%);
+  --theme-action-primary: var(--theme-violet-600);
+  --theme-action-primary-hover: var(--theme-violet-700);
+  --theme-status-positive: var(--theme-green-500);
+  --theme-focus-ring: rgb(124 112 250 / 44%);
+
+  /* The hero's dark-to-electric-violet atmosphere. */
+  --theme-gradient-brand: linear-gradient(135deg, #693bff 0%, #8c50c8 100%);
+  --theme-gradient-hero: linear-gradient(
+    180deg,
+    #071013 0%,
+    #071013 44%,
+    #141130 66%,
+    #35217e 100%
+  );
+  --theme-gradient-glow: radial-gradient(
+    circle at 50% 100%,
+    rgb(107 62 255 / 58%) 0%,
+    rgb(52 34 79 / 44%) 32%,
+    transparent 68%
+  );
+
+  /* Typography. Use locally licensed/web-loaded faces when available. */
+  --theme-font-heading: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --theme-font-body: Inter, "Helvetica Neue", Arial, sans-serif;
+  --theme-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --theme-font-size-2xs: 0.625rem;
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-md: 1rem;
+  --theme-font-size-lg: 1.25rem;
+  --theme-font-size-xl: 1.375rem;
+  --theme-font-size-2xl: 1.75rem;
+  --theme-font-size-3xl: 2rem;
+  --theme-font-size-4xl: 2.5rem;
+  --theme-font-size-5xl: 3rem;
+  --theme-font-size-6xl: 4rem;
+  --theme-weight-regular: 400;
+  --theme-weight-medium: 500;
+  --theme-weight-semibold: 600;
+  --theme-weight-bold: 700;
+  --theme-leading-tight: 1.2;
+  --theme-leading-body: 1.5;
+  --theme-tracking-heading: -0.031rem;
+  --theme-tracking-tight: -0.016rem;
+  --theme-tracking-label: 0.05em;
+
+  /* 4px base spacing system. */
+  --theme-space-0: 0;
+  --theme-space-1: 0.25rem;
+  --theme-space-2: 0.5rem;
+  --theme-space-3: 0.75rem;
+  --theme-space-4: 1rem;
+  --theme-space-5: 1.25rem;
+  --theme-space-6: 1.5rem;
+  --theme-space-8: 2rem;
+  --theme-space-10: 2.5rem;
+  --theme-space-12: 3rem;
+  --theme-space-16: 4rem;
+  --theme-space-20: 5rem;
+  --theme-space-24: 6rem;
+  --theme-space-30: 7.5rem;
+
+  --theme-radius-xs: 0.25rem;
+  --theme-radius-sm: 0.5rem;
+  --theme-radius-md: 1rem;
+  --theme-radius-lg: 1.5rem;
+  --theme-radius-pill: 9999px;
+  --theme-border-width: 1px;
+  --theme-shadow-sm: 0 1px 2px rgb(0 0 0 / 10%);
+  --theme-shadow-card:
+    0 0 0 1px rgb(56 60 67 / 5%), 0 1px 3px rgb(56 60 67 / 15%);
+  --theme-shadow-violet: 0 0 4px var(--theme-violet-600);
+
+  --theme-container-sm: 38rem;
+  --theme-container-md: 46rem;
+  --theme-container-lg: 60rem;
+  --theme-container-xl: 73rem;
+  --theme-duration-fast: 150ms;
+  --theme-duration-normal: 250ms;
+  --theme-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --theme-ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Small reference recipes; safe to remove if only the tokens are needed. */
+.theme-theme-dark {
+  color: var(--theme-text-inverse);
+  background: var(--theme-gradient-glow), var(--theme-gradient-hero);
+  font-family: var(--theme-font-body);
+}
+
+.theme-heading {
+  font-family: var(--theme-font-heading);
+  font-weight: var(--theme-weight-semibold);
+  line-height: var(--theme-leading-tight);
+  letter-spacing: var(--theme-tracking-heading);
+}
+
+.theme-button {
+  min-height: 3rem;
+  padding-inline: var(--theme-space-8);
+  border: 1px solid transparent;
+  border-radius: var(--theme-radius-pill);
+  font: var(--theme-weight-semibold) var(--theme-font-size-md) / 1
+    var(--theme-font-body);
+  transition:
+    transform var(--theme-duration-fast) var(--theme-ease-out),
+    background-color var(--theme-duration-fast) var(--theme-ease-standard),
+    box-shadow var(--theme-duration-fast) var(--theme-ease-standard);
+}
+
+.theme-button--primary {
+  color: var(--theme-white);
+  background: var(--theme-gradient-brand);
+  box-shadow:
+    0 3px 3px rgb(18 25 217 / 30%),
+    inset 0 -3px 4px rgb(91 18 217 / 30%);
+}
+
+.theme-button--secondary {
+  color: var(--theme-neutral-900);
+  background: var(--theme-white);
+  box-shadow: var(--theme-shadow-sm);
+}
+
+.theme-button:hover {
+  transform: translateY(-1px);
+}
+.theme-button:focus-visible {
+  outline: 3px solid var(--theme-focus-ring);
+  outline-offset: 3px;
+}
+
+.theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--theme-space-2);
+  padding: var(--theme-space-3) var(--theme-space-6);
+  border: var(--theme-border-width) solid var(--theme-border-inverse);
+  border-radius: var(--theme-radius-pill);
+  color: var(--theme-white);
+  background: rgb(33 28 59 / 82%);
+}

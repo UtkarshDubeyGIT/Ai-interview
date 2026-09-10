@@ -1,0 +1,49 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "canvas": { "$type": "color", "$value": "#ffffff" },
+    "ink": { "$type": "color", "$value": "#071013" },
+    "surface-dark": { "$type": "color", "$value": "#131921" },
+    "violet": {
+      "100": { "$type": "color", "$value": "#f5f3fc" },
+      "300": { "$type": "color", "$value": "#b9b5f5" },
+      "500": { "$type": "color", "$value": "#7c70fa" },
+      "600": { "$type": "color", "$value": "#6b3eff" },
+      "700": { "$type": "color", "$value": "#5b12d9" },
+      "900": { "$type": "color", "$value": "#34224f" }
+    },
+    "neutral": {
+      "100": { "$type": "color", "$value": "#eff4f8" },
+      "200": { "$type": "color", "$value": "#dbe4eb" },
+      "300": { "$type": "color", "$value": "#bfcbd4" },
+      "500": { "$type": "color", "$value": "#8193a2" },
+      "600": { "$type": "color", "$value": "#65717b" },
+      "700": { "$type": "color", "$value": "#464e56" },
+      "900": { "$type": "color", "$value": "#262b30" }
+    },
+    "positive": { "$type": "color", "$value": "#10b981" },
+    "negative": { "$type": "color", "$value": "#f35863" }
+  },
+  "font": {
+    "heading": {
+      "$type": "fontFamily",
+      "$value": ["Space Grotesk", "Helvetica Neue", "Arial", "sans-serif"]
+    },
+    "body": {
+      "$type": "fontFamily",
+      "$value": ["Inter", "Helvetica Neue", "Arial", "sans-serif"]
+    }
+  },
+  "radius": {
+    "xs": { "$type": "dimension", "$value": { "value": 4, "unit": "px" } },
+    "sm": { "$type": "dimension", "$value": { "value": 8, "unit": "px" } },
+    "md": { "$type": "dimension", "$value": { "value": 16, "unit": "px" } },
+    "lg": { "$type": "dimension", "$value": { "value": 24, "unit": "px" } },
+    "pill": { "$type": "dimension", "$value": { "value": 9999, "unit": "px" } }
+  },
+  "motion": {
+    "fast": { "$type": "duration", "$value": { "value": 150, "unit": "ms" } },
+    "normal": { "$type": "duration", "$value": { "value": 250, "unit": "ms" } },
+    "standard": { "$type": "cubicBezier", "$value": [0.4, 0, 0.2, 1] }
+  }
+}
